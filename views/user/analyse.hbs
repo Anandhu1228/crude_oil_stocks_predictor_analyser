@@ -1,0 +1,175 @@
+<style>
+    body {
+        background-image: url('/images/crude.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 100vh;
+        margin: 0;
+        position: relative;
+        font-family: font-family: 'Montserrat', sans-serif;
+    }
+    
+    body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 0;
+    }
+
+    form {
+        position: relative;
+        z-index: 1;
+        margin-top: 150px;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .input_here{
+        width: 50%;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+
+    .btn {
+        margin-top: 1rem;
+    }
+
+    .btn_here{
+        font-weight: 600;
+        color: white;
+        background-color: gray;
+    }
+
+    .btn_here:hover{
+        font-weight: 600;
+        color: white;
+        background-color: gray;
+    }
+
+    .nav_here {
+        font-size: 50px;
+        font-weight: 500;
+        color: rgb(122, 118, 118);
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 50px;
+    }
+
+    .result {
+        margin-top: 30px;
+        color: white;
+        font-weight: 600;
+        position: relative;
+        z-index: 1;
+        font-size: 1.2rem;
+    }
+
+    .analysis-container {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .analysis-item {
+        flex: 1; 
+        text-align: center; 
+        color: white;
+    }
+
+    .analysis-image {
+        width: 100%; 
+        max-width: 620px; 
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+</style>
+
+<nav class="navbar navbar-light nav_here">
+  <div>CRUDE OIL STOCKS</div>
+</nav>
+
+<form id="crudeForm">
+  <div class="form-group div_here">
+    <input type="number" class="form-control input_here" required name="Year" placeholder="Select year">
+  </div>
+  <div class="form-group div_here">
+     <select class=" input_here" style="height: 40px;padding:6px" name="Month" required >
+        <option value="" disabled selected>Select Month</option>
+        <option value="1">January</option>
+        <option value="2">February</option>
+        <option value="3">March</option>
+        <option value="4">April</option>
+        <option value="5">May</option>
+        <option value="6">June</option>
+        <option value="7">July</option>
+        <option value="8">August</option>
+        <option value="9">September</option>
+        <option value="10">October</option>
+        <option value="11">November</option>
+        <option value="12">December</option>                                            
+    </select>
+  </div>
+  <div class="form-group div_here">
+     <select class=" input_here" style="height: 40px;padding:6px" name="Criteria" required >
+        <option value="" disabled selected>Select criteria</option>
+        <option value="Adj_Close">Adj_Close</option>
+        <option value="Close">Close</option>
+        <option value="High">High</option>
+        <option value="Low">Low</option>
+        <option value="Open">Open</option>
+        <option value="Volume">Volume</option>                                           
+    </select>
+  </div>
+  <button type="submit" class="btn btn_here">Submit</button>
+</form>
+
+<div id="AnalyseResult" class="result"></div>
+
+<script>
+  document.getElementById('crudeForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const formData = new FormData(this);
+    const data = new URLSearchParams(formData);
+
+    fetch('/send_crude_analyse', {
+      method: 'POST',
+      body: data,
+    })
+      .then(response => response.json())
+      .then(analysis => {
+        if (analysis.error) {
+          alert('Error: ' + analysis.error);
+        } else {
+          const resultDiv = document.getElementById('AnalyseResult');
+            resultDiv.innerHTML = `
+                <div class="analysis-container">
+                    <div class="analysis-item">
+                        <h3>Yearly Analysis</h3>
+                        <img src="/plots/yearly_plot.png" alt="Yearly Plot" class="analysis-image">
+                    </div>
+                    <div class="analysis-item">
+                        <h3>Monthly Analysis</h3>
+                        <img src="/plots/monthly_plot.png" alt="Monthly Plot" class="analysis-image">
+                    </div>
+                </div>
+            `;
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while fetching the analysis.');
+      });
+  });
+</script>

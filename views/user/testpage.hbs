@@ -1,0 +1,144 @@
+<style>
+    body {
+        background-image: url('/images/crude.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 100vh;
+        margin: 0;
+        position: relative;
+        font-family: font-family: 'Montserrat', sans-serif;
+    }
+    
+    body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 0;
+    }
+
+    form {
+        position: relative;
+        z-index: 1;
+        margin-top: 150px;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .input_here{
+        width: 50%;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+
+    .label_here{
+        color: white;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .div_here{
+        margin-bottom: 30px;
+    }
+
+    .btn {
+        margin-top: 1rem;
+    }
+
+    .btn_here{
+        font-weight: 600;
+        color: white;
+        background-color: gray;
+    }
+
+    .btn_here:hover{
+        font-weight: 600;
+        color: white;
+        background-color: gray;
+    }
+
+     .result {
+        margin-top: 30px;
+        color: white;
+        font-weight: 600;
+        position: relative;
+        z-index: 1;
+        font-size: 1.2rem;
+    }
+
+    .nav_here {
+        font-size: 50px;
+        font-weight: 500;
+        color: rgb(122, 118, 118);
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 50px;
+    }
+</style>
+
+<nav class="navbar navbar-light nav_here">
+  <div>CRUDE OIL STOCKS</div>
+</nav>
+
+<form id="crudeForm">
+  <div class="form-group div_here">
+    <label class="label_here">Enter the date</label>
+    <input type="date" class="form-control input_here" required name="Date">
+  </div>
+  <div class="form-group div_here">
+    <input type="number" class="form-control input_here" required name="Adj_Close" placeholder="Enter the Adj_Close">
+  </div>
+  <div class="form-group div_here">
+    <input type="number" class="form-control input_here" required name="Close" placeholder="Enter the Close">
+  </div>
+  <div class="form-group div_here">
+    <input type="number" class="form-control input_here" required name="Open" placeholder="Enter the Open">
+  </div>
+  <div class="form-group div_here">
+    <input type="number" class="form-control input_here" required name="Volume" placeholder="Enter the Volume">
+  </div>
+  <button type="submit" class="btn btn_here">Submit</button>
+  <a href="/analyse_trends" style="margin-left: 20px;" class="btn btn_here">Analyse</a>
+</form>
+
+
+<div id="predictionResult" class="result"></div>
+
+
+<script>
+  document.getElementById('crudeForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const formData = new FormData(this);
+    const data = new URLSearchParams(formData);
+
+    fetch('/send_crude', {
+      method: 'POST',
+      body: data,
+    })
+      .then(response => response.json())
+      .then(prediction => {
+        if (prediction.error) {
+          alert('Error: ' + prediction.error);
+        } else {
+          const resultDiv = document.getElementById('predictionResult');
+          resultDiv.innerHTML = `
+            <p>Predicted High: ${prediction.High}</p>
+            <p>Predicted Low: ${prediction.Low}</p>
+          `;
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while fetching the prediction.');
+      });
+  });
+</script>
